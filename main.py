@@ -1,23 +1,7 @@
 # === IMPORT MODULES === #
 import os, sys, argparse
 
-# === FIND OUT THE PLATFORM === #
-platforms = {
-    'linux1': 'Linux',
-    'linux2': 'Linux',
-    'posix': 'Linux',
-    'linux': 'Linux',
-    'darwin': 'OS X',
-    'win32': 'Windows'
-}
-if sys.platform not in platforms:
-    print("Unsupported Operating System Type")
-    exit()
-else:
-    if platforms[sys.platform] == "Windows":
-        pathDiff = "\\"
-    else:
-        pathDiff = "/"
+pathDiff = "\\" if os.name == "nt" else "/"
 
 # === TO GET ALL THE FILES FROM A PATH === #
 def _(path):
@@ -35,15 +19,12 @@ def _(path):
     return files
 
 # === MAIN COMMAND === #
-def monoinit(args) -> str:
-    global pathDiff
-
+def monoinit(args):
     # === CHECK IF MONOREPO EXISTS === #
     c = os.getcwd()
-    if not args.allFiles:
-        if os.path.join(c, args.monorepo) not in \
-            [os.path.join(c, o) for o in os.listdir(c) if os.path.isdir(os.path.join(c, o))]:
-            return "This monorepo doesn't exist."
+    #if not args.allFiles:
+     #   if os.path.join(c, args.monorepo) not in [os.path.join(c, o) for o in os.listdir(c) if os.path.isdir(os.path.join(c, o))]:
+      #      return "This monorepo doesn't exist."
 
     # === TODOS === #
     if args.getTodos:
@@ -73,6 +54,8 @@ def monoinit(args) -> str:
                 for k in todos[i][j]:
                     fancyReturn += f"\t\t{k}\n"
         return fancyReturn
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
