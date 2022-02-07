@@ -1,82 +1,77 @@
 # === IMPORT MODULES === #
-import os, sys, argparse
+import os, typing
 
-pathDiff = "\\" if os.name == "nt" else "/"
+exit_ = False
 
-# === TO GET ALL THE FILES FROM A PATH === #
-def _(path):
-    files = []
-    for i in os.listdir(path):
-        if os.path.isdir(os.path.join(path, i)): files += _(os.path.join(path, i))
-        elif (
-            i.endswith(".py")       or
-            i.endswith(".html")     or
-            i.endswith(".js")       or
-            i.endswith(".mjs")      or
-            i.endswith(".ejs")      or
-            i.endswith(".css")
-        ): files.append(os.path.join(path, i))
-    return files
+# === GET TODOS === #
+def todos(folder: str) -> str:
 
-# === MAIN COMMAND === #
-def monoinit(args):
-    # === CHECK IF MONOREPO EXISTS === #
-    c = os.getcwd()
-    #if not args.allFiles:
-     #   if os.path.join(c, args.monorepo) not in [os.path.join(c, o) for o in os.listdir(c) if os.path.isdir(os.path.join(c, o))]:
-      #      return "This monorepo doesn't exist."
+    # === TO GET ALL THE FILES FROM A PATH === #
+    def _(path: str) -> list:
+        files = []
+        for i in os.listdir(path):
+            if os.path.isdir(os.path.join(path, i)): files += _(os.path.join(path, i))
+            elif (
+                i.endswith(".py")       or
+                i.endswith(".html")     or
+                i.endswith(".js")       or
+                i.endswith(".mjs")      or
+                i.endswith(".ejs")      or
+                i.endswith(".tsx")      or
+                i.endswith(".ts")       or
+                i.endswith(".jsx")      or
+                i.endswith(".css")
+            ): files.append(os.path.join(path, i))
+        return files
 
-    # === TODOS === #
-    if args.getTodos:
-        todos = {}
-        path = c
+    files, c = {}, os.getcwd()
+    for i in _(folder):
+        with open(i, 'r') as f:
+            for lineNo, item in enumerate(f.readlines()):
+                if not ("TODO" in item): continue
+
+                if i not in list(files.keys()):
+                    files[i] = [f"{lineNo+1}. | {item}"]
+                else:
+                    files[i].append(f"{lineNo+1}. | {item}")
+
+    fancyReturn = ""
+
+    n = "\n\t"
+    for i in list(files.keys()):
+        fancyReturn += f"Path: {i[len(c)+1:]}\n\t{n.join(files[i])}"
+    return fancyReturn
+
+# === SHELL === #
+def shell(command: str) -> typing.Any:
+
+    # === CHANGE DIRECTORY === #
+    if command.startswith("cd"):
+        if len((x := command.strip().split())) == 1: return "The path has not been supplied"
+        elif len(x) > 2: return "Extra arguments passed"
+        elif not os.path.isdir(x[1]): return "Cannot find the path specified"
+        os.chdir(x[1])
+    
+    # === GET TODOS === #
+    elif command.startswith("todos"):
+        if len(command.strip().split()) > 1: return "Extra arguments passed"
+        return todos(os.getcwd())
+
+    # === COMMIT MESSAGE === #
+    elif command.startswith("git commit -m"):
+        b = "\""
+        commit = f'{os.path.basename(os.getcwd())}: {command.split(f"{b}")[1]}'
+        os.system(f'git commit -m \"{commit}\"')
         
-        if args.allFiles: 
-            for i in os.listdir(path): todos[i] = {}
-        else: todos[args.monorepo] = {}
+    # === TO EXIT === #
+    elif command.startswith("exit"):
+        global exit_
+        exit_ = True
 
-        for j in _(f"{path}{pathDiff}{args.monorepo if args.monorepo is not None else ''}"):
-            with open(j, 'r') as f:
-                for lineNo, item in enumerate(f.readlines()):
-                    if "TODO" in item:
-                        if j not in list(todos.keys()):
-                            todos[j[len(c)+1:].split(pathDiff)[0]][j] = [f"{lineNo+1}. | {item}"]
-                        else:
-                            todos[j[len(c)+1:].split(pathDiff)[0]][j].append(f"{lineNo+1}. | {item}")
-
-        fancyReturn = ""
-        newline = "\n\t"
-        # print(todos)
-        for i in list(todos.keys()):
-            fancyReturn += f"MonoRepo: {i}\n"
-            for j in list(todos[i].keys()):
-                fancyReturn += f"\tFile: {j[len(c)+1:]}\n"
-                for k in todos[i][j]:
-                    fancyReturn += f"\t\t{k}\n"
-        return fancyReturn
-
-
+    else: os.system(command)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--monorepo", "-m",
-        metavar="monorepo",
-        help="Choose a monorepo to run the command on",
-        required=False
-    )
-    parser.add_argument(
-        "--getTodos", "-gt",
-        action='store_true',
-        help="Find Todo comments from files in a monorepo and display them",
-        default=False
-    )
-    parser.add_argument(
-        "--allFiles", "-a",
-        action='store_true',
-        help="Run commands in all monorepos",
-        default=False
-    )
-
-    args = parser.parse_args()
-    print(str(monoinit(args)))
+    while not exit_:
+        output = shell(input(f"◆ {os.getcwd()} ❯❯❯ "))
+        if output is None: continue
+        else: print(output)
