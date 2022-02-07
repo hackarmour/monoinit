@@ -60,7 +60,7 @@ def shell(command: str) -> typing.Any:
     # === COMMIT MESSAGE === #
     elif command.startswith("git commit -m"):
         b = "\""
-        commit = f'{os.path.basename(os.getcwd())}: {command.split(f"{b}")[-2]}'
+        commit = f'{os.path.basename(os.getcwd())}: {command.split(f"{b}")[1]}'
         os.system(f'git commit -m \"{commit}\"')
         
     # === TO EXIT === #
