@@ -2,10 +2,10 @@
 Monorepo initialiser for hackarmour written in python.
 
 ## How to use
-1. Make sure to have python3 installed.
-2. Clone the repo.
-3. run python3 main.py and follow the instructions.
-4. You can get a list of all the commands by typing `help` in the shell.
+- Make sure to have python3 installed.
+- Clone the repo.
+- run python3 main.py and follow the instructions.
+- You can get a list of all the commands by typing `help` in the shell.
 
 Meant to be shipped with each monorepo (main.py is standalone) for better tooling. Expects a file called `workflow.json` at the root of monorepo. The file has config for different commands the shell can run. Here's an example config:
 
