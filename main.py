@@ -1,25 +1,20 @@
 # === IMPORT MODULES === #
-import os, typing, argparse
+import os, typing, argparse,sys
+
+def git_ignore_scan()-> list:
+    global ignore
+    gitIgnore = False
+    if ".gitignore" in os.listdir(PARENT_DIR):gitIgnore = True
+    if gitIgnore:
+        with open(f"{PARENT_DIR}/.gitignore",'r') as f:ignore = f.read().splitlines()
+    return ignore
 
 # === GET TODOS === #
 def todos(folder: str) -> str:
-
     # === TO GET ALL THE FILES FROM A PATH === #
     def _(path: str) -> list:
-        files = []
-        for i in os.listdir(path):
-            if os.path.isdir(os.path.join(path, i)): files += _(os.path.join(path, i))
-            elif (
-                i.endswith(".py")       or
-                i.endswith(".html")     or
-                i.endswith(".js")       or
-                i.endswith(".mjs")      or
-                i.endswith(".ejs")      or
-                i.endswith(".tsx")      or
-                i.endswith(".ts")       or
-                i.endswith(".jsx")      or
-                i.endswith(".css")
-            ): files.append(os.path.join(path, i))
+        files = [file for root,dirs,file in os.walk(path)]
+        files = [x for x in files[0] if x not in ignore]
         return files
 
     files, c = {}, os.getcwd()
@@ -32,7 +27,6 @@ def todos(folder: str) -> str:
                     files[i] = [f"{lineNo+1}. | {item}"]
                 else:
                     files[i].append(f"{lineNo+1}. | {item}")
-
     fancyReturn = ""
 
     n = "\n\t"
@@ -44,8 +38,8 @@ def todos(folder: str) -> str:
 
 # === SHELL === #
 def shell(command: str) -> typing.Any:
-    global PARENT_DIR
-
+    global PARENT_DIR 
+    global exit_
     # === CHANGE DIRECTORY === #
     if command.lower().startswith("cd"):
         if len((x := command.strip().split())) == 1: return "The path has not been supplied"
@@ -66,7 +60,6 @@ def shell(command: str) -> typing.Any:
 
     # === COMMIT MESSAGE === #
     elif command.lower().startswith("git"):
-        
         # === KEEP THE CURRENT PATH === #
         cur_path = os.getcwd()
 
@@ -109,15 +102,13 @@ You can use this shell as if you are using your terminal.
 Any other command is executed by your default shell
 """
 
-    # === TO EXIT === #
-    elif command.lower().startswith("exit"):
-        global exit_
+    # === TO EXIT === #     
+    elif command.lower().startswith("exit") :
         exit_ = True
 
     else: os.system(command)
 
 if __name__ == "__main__":
-
     # === SETUP ARGPARSE === #
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -132,14 +123,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # === IF THE PATH DOESN'T EXIST === #
-    if not os.path.isdir(args.path[0]):
-        print("Path not recognized")
-        exit()
-
+    if not os.path.isdir(args.path[0]):sys.exit("Path not recognized")
     # === TO CHECK IF THE DIRECTORY CONTAINS MONOREPOS === #
-    elif "workflow.json" not in os.listdir(args.path[0]):
-        print("The path specified doesn't have a workflow.json file")
-        exit()
+    elif "workflow.json" not in os.listdir(args.path[0]):sys.exit("The path specified doesn't have a workflow.json file")
 
     # === CHANGE DIRECTORY TO THE PATH === #
     os.chdir(args.path[0])
@@ -149,9 +135,11 @@ if __name__ == "__main__":
     
     # === IF THIS TURNS TRUE, THE SCRIPT STOPS === #
     exit_ = False
+    git_ignore_scan()
 
     while not exit_:
         # === GET AND PRINT OUTPUT === #
-        output = shell(input(f"◆ {os.getcwd()} ❯❯❯ "))
+        print('\x1b[1;32;40m' + os.path.basename(os.getcwd()) + '\x1b[0m',end=" ")
+        output = shell(input("\x1b[1;33;40m>\x1b[6;34;40m>\x1b[6;35;40m>\x1b[0m"))
         if output is None: continue
         else: print(output)
