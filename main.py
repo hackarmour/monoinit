@@ -7,12 +7,12 @@ def git_ignore_scan()-> list:
     if ".gitignore" in os.listdir(PARENT_DIR):gitIgnore = True
     if gitIgnore:
         with open(f"{PARENT_DIR}/.gitignore",'r') as f:ignore = f.read().splitlines()
-    return ignore
 
 # === GET TODOS === #
 def todos(folder: str) -> str:
     # === TO GET ALL THE FILES FROM A PATH === #
     def _(path: str) -> list:
+        git_ignore_scan()
         files = [file for root,dirs,file in os.walk(path)]
         files = [x for x in files[0] if x not in ignore]
         return files
@@ -135,8 +135,6 @@ if __name__ == "__main__":
     
     # === IF THIS TURNS TRUE, THE SCRIPT STOPS === #
     exit_ = False
-    git_ignore_scan()
-
     while not exit_:
         # === GET AND PRINT OUTPUT === #
         print('\x1b[1;32;40m' + os.path.basename(os.getcwd()) + '\x1b[0m',end=" ")
