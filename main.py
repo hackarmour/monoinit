@@ -1,5 +1,20 @@
 # === IMPORT MODULES === #
-import os, typing, argparse,sys
+import os, typing, argparse,sys,readline
+
+
+class MyCompleter(object):
+    def __init__(self, options):
+        self.options = sorted(options)
+    def complete(self, text, state):
+        if state == 0: 
+            if text:  
+                self.matches = [s for s in self.options if s and s.startswith(text)]
+            else:  
+                self.matches = self.options[:]
+        try: 
+            return self.matches[state]
+        except IndexError:
+            return None
 
 def git_ignore_scan()-> list:
     global ignore
@@ -138,6 +153,12 @@ if __name__ == "__main__":
     while not exit_:
         # === GET AND PRINT OUTPUT === #
         print('\x1b[1;32;40m' + os.path.basename(os.getcwd()) + '\x1b[0m',end=" ")
+        
+        # ===Completer=== #
+        completer = MyCompleter([file for root,dirs,file in os.walk(os.getcwd())][0])
+        readline.parse_and_bind('tab: complete')    
+        readline.set_completer(completer.complete)
+
         output = shell(input("\x1b[1;33;40m>\x1b[6;34;40m>\x1b[6;35;40m>\x1b[0m"))
         if output is None: continue
         else: print(output)
