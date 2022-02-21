@@ -1,5 +1,6 @@
 # === IMPORT MODULES === #
 import os, typing, argparse,sys,readline
+import cmd
 
 
 class MyCompleter(object):
@@ -160,5 +161,6 @@ if __name__ == "__main__":
         readline.set_completer(completer.complete)
 
         output = shell(input("\x1b[1;33;40m>\x1b[6;34;40m>\x1b[6;35;40m>\x1b[0m"))
+        cmd.Cmd(stdin=output)
         if output is None: continue
         else: print(output)
