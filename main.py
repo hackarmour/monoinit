@@ -1,6 +1,6 @@
 # === IMPORT MODULES === #
 import os, typing, argparse,sys,readline
-import cmd
+from cmd import Cmd
 
 
 class MyCompleter(object):
@@ -94,7 +94,8 @@ def shell(command: str) -> typing.Any:
             
             # === EXIT FUNCTION === #
             return
-        
+        if command.lower().startswith("git log"):os.system("git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit")
+
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
         os.system(command)
         os.chdir(cur_path)
@@ -156,11 +157,11 @@ if __name__ == "__main__":
         print('\x1b[1;32;40m' + os.path.basename(os.getcwd()) + '\x1b[0m',end=" ")
         
         # ===Completer=== #
-        completer = MyCompleter([file for root,dirs,file in os.walk(os.getcwd())][0])
+        completer = MyCompleter([file for root,dirs,file in os.walk(PARENT_DIR)][0])
         readline.parse_and_bind('tab: complete')    
         readline.set_completer(completer.complete)
 
         output = shell(input("\x1b[1;33;40m>\x1b[6;34;40m>\x1b[6;35;40m>\x1b[0m"))
-        cmd.Cmd(stdin=output)
+        Cmd(stdin=output)
         if output is None: continue
         else: print(output)
