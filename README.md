@@ -25,6 +25,7 @@ Meant to be shipped with each monorepo (main.py is standalone) for better toolin
         "run": "go run",
         "build": "go build",
         "test": "go test",
+        "install": "go mod vendor",
     }
 }
 ```
