@@ -1,9 +1,9 @@
 # === IMPORT MODULES === #
-import os, typing, argparse,sys,readline
+import os, typing, argparse, sys, readline
 from cmd import Cmd
 
 
-class MyCompleter(object):
+class Completer(object):
     def __init__(self, options):
         self.options = sorted(options)
     def complete(self, text, state):
@@ -75,7 +75,7 @@ def shell(command: str) -> typing.Any:
         return todos(os.getcwd())
 
     # === COMMIT MESSAGE === #
-    elif command.lower().startswith("git"):
+    elif command.startswith("git"):
         # === KEEP THE CURRENT PATH === #
         cur_path = os.getcwd()
 
@@ -83,7 +83,7 @@ def shell(command: str) -> typing.Any:
         os.chdir(PARENT_DIR)
 
         # === IF THE COMMAND IS A COMMIT === #
-        if command.lower().startswith("git commit -m"):
+        if command.startswith("git commit -m"):
             # === COMMIT FORMATTING === #
             b = "\""
             commit = command.split(f"{b}")
@@ -91,18 +91,22 @@ def shell(command: str) -> typing.Any:
 
             # === RUN COMMAND === #
             os.system("\"".join(commit))
-            
-            # === EXIT FUNCTION === #
-            return
-        if command.lower().startswith("git log"):os.system("git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit")
+
+        elif command.startswith("git log"):
+            os.system(
+                "git log --graph --pretty=format:'%Cred%h%Creset"
+                " -%C(yellow)%d%Creset %s %Cgreen(%cr)"
+                " %C(bold blue)<%an>%Creset' --abbrev-commit"
+            )
 
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
-        os.system(command)
-        os.chdir(cur_path)
+        else:
+            os.system(command)
+            os.chdir(cur_path)
         
     # === HELP === #
     elif command.lower().startswith("help"):
-        return """
+        return f"""
 Command: cd
     Usage: cd <path>
     Used to change the current working directory
@@ -116,7 +120,7 @@ Command: exit
     To exit the shell
 
 You can use this shell as if you are using your terminal.
-Any other command is executed by your default shell
+Any other command is executed by shell
 """
 
     # === TO EXIT === #     
@@ -140,9 +144,12 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # === IF THE PATH DOESN'T EXIST === #
-    if not os.path.isdir(args.path[0]):sys.exit("Path not recognized")
+    if not os.path.isdir(args.path[0]):
+        sys.exit("Path not recognized")
+
     # === TO CHECK IF THE DIRECTORY CONTAINS MONOREPOS === #
-    elif "workflow.json" not in os.listdir(args.path[0]):sys.exit("The path specified doesn't have a workflow.json file")
+    elif "workflow.json" not in os.listdir(args.path[0]):
+        sys.exit("The path specified doesn't have a workflow.json file")
 
     # === CHANGE DIRECTORY TO THE PATH === #
     os.chdir(args.path[0])
@@ -152,16 +159,25 @@ if __name__ == "__main__":
     
     # === IF THIS TURNS TRUE, THE SCRIPT STOPS === #
     exit_ = False
+
     while not exit_:
-        # === GET AND PRINT OUTPUT === #
-        print('\x1b[1;32;40m' + os.path.basename(os.getcwd()) + '\x1b[0m',end=" ")
         
-        # ===Completer=== #
-        completer = MyCompleter([file for root,dirs,file in os.walk(PARENT_DIR)][0])
+        # === COLORS === #
+        GREEN  = "\033[92m"
+        RED    = "\033[91m"
+        YELLOW = '\033[93m'
+        BLUE   = '\033[36m'
+        RESET  = '\033[0m'
+
+        # === GET AND PRINT OUTPUT === #
+        print(f'{BLUE}{os.path.basename(os.getcwd())}{RESET}',end=" ")
+        
+        # === COMPLETER === #
+        completer = Completer([file for root,dirs,file in os.walk(PARENT_DIR)][0])
         readline.parse_and_bind('tab: complete')    
         readline.set_completer(completer.complete)
 
-        output = shell(input("\x1b[1;33;40m>\x1b[6;34;40m>\x1b[6;35;40m>\x1b[0m"))
+        output = shell(input(f"{RED}❯{GREEN}❯{BLUE}❯{RESET} "))
         Cmd(stdin=output)
         if output is None: continue
         else: print(output)
