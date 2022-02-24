@@ -1,8 +1,16 @@
 # === IMPORT MODULES === #
-import os, typing, argparse,sys,readline
+import os, typing, argparse,sys,readline,json
 from cmd import Cmd
 
+class JsonParser:
+    def __init__(self,file="",cmd = "",folder_dir = "") -> None:
+        self.file_name = file
+        self.contents = json.loads(open(self.file_name).read())
+        self.command = cmd
+        self.folder = folder_dir
 
+    def output(self):
+        print(self.contents[self.folder][self.command])
 class MyCompleter(object):
     def __init__(self, options):
         self.options = sorted(options)
@@ -16,7 +24,7 @@ class MyCompleter(object):
             return self.matches[state]
         except IndexError:
             return None
-
+   
 def git_ignore_scan()-> list:
     global ignore
     gitIgnore = False
@@ -29,12 +37,11 @@ def todos(folder: str) -> str:
     # === TO GET ALL THE FILES FROM A PATH === #
     def _(path: str) -> list:
         git_ignore_scan()
-        files = [file for root,dirs,file in os.walk(path)]
-        files = [x for x in files[0] if x not in ignore]
+        files = [x for x in [file for root,dirs,file in os.walk(path)] if x not in ignore]
         return files
 
     files, c = {}, os.getcwd()
-    for i in _(folder):
+    for i in _(folder)[0]: #! @TheEmperor342 test this out!!!
         with open(i, 'r') as f:
             for lineNo, item in enumerate(f.readlines()):
                 if not ("TODO" in item): continue
@@ -123,7 +130,9 @@ Any other command is executed by your default shell
     elif command.lower().startswith("exit") :
         exit_ = True
 
-    else: os.system(command)
+    else:
+        JsonParser(file=os.path.join(PARENT_DIR,"workflow.json"),cmd=command,folder_dir=os.path.basename(os.getcwd())).output()
+        os.system(command)
 
 if __name__ == "__main__":
     # === SETUP ARGPARSE === #
