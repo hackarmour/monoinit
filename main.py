@@ -31,7 +31,8 @@ def git_ignore_scan()-> list:
         with open(os.path.join(PARENT_DIR, ".gitignore"),'r') as f:
             ignore = f.read().splitlines()
             ignore = [os.path.join(PARENT_DIR, k) for k in ignore]
-    return ignore
+        return ignore
+    return []
 
 # === GET TODOS === #
 def todos(folder: str) -> str:
