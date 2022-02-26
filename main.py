@@ -1,21 +1,15 @@
 # === IMPORT MODULES === #
-import os, typing, argparse,sys,readline,json
+import os, typing, argparse, sys, readline, json, subprocess
 from cmd import Cmd
 
-class JsonParser:
-    def __init__(self,file="",cmd = "",folder_dir = "") -> None:
-        self.file_name = file
-        self.contents = json.loads(open(self.file_name).read())
-        self.command = cmd
-        self.folder = folder_dir
+if os.name == "nt":
+    sys.exit(
+        "This script is designed to run only on unix based systems.\n"
+        "Please use Windows Subsystem for Linux."
+    )
 
-    def check_cmd(self):
-        try:
-            os.system(self.contents[self.folder][self.command])
-            return True
-        except KeyError:
-            return False
-class MyCompleter(object):
+# === COMPLETER === #
+class Completer(object):
     def __init__(self, options):
         self.options = sorted(options)
     def complete(self, text, state):
@@ -28,24 +22,36 @@ class MyCompleter(object):
             return self.matches[state]
         except IndexError:
             return None
-   
+
+# === GET FILE PATHS FROM GITIGNORE === #
 def git_ignore_scan()-> list:
-    global ignore
     gitIgnore = False
     if ".gitignore" in os.listdir(PARENT_DIR):gitIgnore = True
     if gitIgnore:
-        with open(f"{PARENT_DIR}/.gitignore",'r') as f:ignore = f.read().splitlines()
+        with open(os.path.join(PARENT_DIR, ".gitignore"),'r') as f:
+            ignore = f.read().splitlines()
+            ignore = [os.path.join(PARENT_DIR, k) for k in ignore]
+        return ignore
+    return []
 
 # === GET TODOS === #
 def todos(folder: str) -> str:
-    # === TO GET ALL THE FILES FROM A PATH === #
     def _(path: str) -> list:
-        git_ignore_scan()
-        files = [x for x in [file for root,dirs,file in os.walk(path)] if x not in ignore]
+        files = []
+        for i in os.listdir(path):
+            if os.path.isdir(os.path.join(path, i)): files += _(os.path.join(path, i))
+            elif (
+                b"ascii" in subprocess.run(
+                    ["file", "--mime-encoding", os.path.join(path, i)],
+                    capture_output=True
+                ).stdout.lower() and
+                os.path.join(path, i) not in IGNORE
+            ): files.append(os.path.join(path, i))
+        
         return files
 
     files, c = {}, os.getcwd()
-    for i in _(folder)[0]: #! @TheEmperor342 test this out!!!
+    for i in _(folder): #! @TheEmperor342 test this out!!!
         with open(i, 'r') as f:
             for lineNo, item in enumerate(f.readlines()):
                 if not ("TODO" in item): continue
@@ -55,18 +61,16 @@ def todos(folder: str) -> str:
                 else:
                     files[i].append(f"{lineNo+1}. | {item}")
     fancyReturn = ""
-
     n = "\n\t"
-    print(list(files.keys()))
     for i in list(files.keys()):
         fancyReturn += f"Path: {i[len(c)+1:]}\n\t{n.join(files[i])}\n"
 
-    return fancyReturn
+    return fancyReturn[:-1]
 
 # === SHELL === #
 def shell(command: str) -> typing.Any:
-    global PARENT_DIR 
-    global exit_
+    global PARENT_DIR, exit_, IGNORE, WORKFLOW
+
     # === CHANGE DIRECTORY === #
     if command.lower().startswith("cd"):
         if len((x := command.strip().split())) == 1: return "The path has not been supplied"
@@ -126,6 +130,7 @@ Command: exit
     Usage: exit
     To exit the shell
 
+    global ignore
 You can use this shell as if you are using your terminal.
 Any other command is executed by your default shell
 """
@@ -135,7 +140,22 @@ Any other command is executed by your default shell
         exit_ = True
 
     else:
-        if JsonParser(file=os.path.join(PARENT_DIR,"workflow.json"),cmd=command,folder_dir=os.path.basename(os.getcwd())).check_cmd() == False:
+        monorepos = []
+        for i in WORKFLOW:
+            if command in list(WORKFLOW[i].keys())[1:]:
+                monorepos.append(i)
+
+        if os.getcwd() != PARENT_DIR:
+            os.system(command)
+            return
+
+        if len(monorepos) > 0:
+            for i in monorepos:
+                print(f"==> Switching to {WORKFLOW[i]['folder']}")
+                os.chdir(WORKFLOW[i]["folder"])
+                os.system(WORKFLOW[i][command])
+                os.chdir(PARENT_DIR)
+        else:
             os.system(command)
 
 if __name__ == "__main__":
@@ -153,28 +173,45 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # === IF THE PATH DOESN'T EXIST === #
-    if not os.path.isdir(args.path[0]):sys.exit("Path not recognized")
+    if not os.path.isdir(args.path[0]):
+        sys.exit("Path not recognized")
+
     # === TO CHECK IF THE DIRECTORY CONTAINS MONOREPOS === #
-    elif "workflow.json" not in os.listdir(args.path[0]):sys.exit("The path specified doesn't have a workflow.json file")
+    elif "workflow.json" not in os.listdir(args.path[0]):
+        sys.exit("The path specified doesn't have a workflow.json file")
 
     # === CHANGE DIRECTORY TO THE PATH === #
     os.chdir(args.path[0])
 
-    # === SAVE THE PATH TO PARENT DIR === #
+    # === GLOBAL VARIABLES === #
     PARENT_DIR = os.getcwd()
+    IGNORE = git_ignore_scan()
+    with open(os.path.join(PARENT_DIR, "workflow.json")) as f:
+            WORKFLOW = json.loads(f.read())
+            for i in WORKFLOW:
+                if "folder" not in list(WORKFLOW[i].keys()):
+                    sys.exit(f"workflow.json: There is no \"folder\" variable in \"{i}\"")
     
     # === IF THIS TURNS TRUE, THE SCRIPT STOPS === #
     exit_ = False
+
+    # === COLORS === #
+    LIGHT_BLUE, BLUE = "\033[36m", "\033[34m"
+    GREEN = "\033[32m"
+    RED = "\033[31m"
+    RESET = "\033[0m"
+
     while not exit_:
+
         # === GET AND PRINT OUTPUT === #
-        print('\x1b[1;32;40m' + os.path.basename(os.getcwd()) + '\x1b[0m',end=" ")
+        print(f'{GREEN}◆ {LIGHT_BLUE}{os.path.basename(os.getcwd())}{RESET}',end=" ")
         
         # ===Completer=== #
-        completer = MyCompleter([file for root,dirs,file in os.walk(PARENT_DIR)][0])
+        completer = Completer([file for root,dirs,file in os.walk(PARENT_DIR)][0])
         readline.parse_and_bind('tab: complete')    
         readline.set_completer(completer.complete)
 
-        output = shell(input("\x1b[1;33;40m>\x1b[6;34;40m>\x1b[6;35;40m>\x1b[0m"))
+        output = shell(input(f"{RED}❯{GREEN}❯{BLUE}❯{RESET} "))
         Cmd(stdin=output)
         if output is None: continue
         else: print(output)
