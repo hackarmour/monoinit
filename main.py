@@ -117,23 +117,18 @@ def shell(command: str) -> typing.Any:
         
     # === HELP === #
     elif command.lower().startswith("help"):
-        return """
-Command: cd
-    Usage: cd <path>
-    Used to change the current working directory
-
-Command: todos
-    Usage: todos
-    Used to get all the ToDos from monorepos/monorepo
-
-Command: exit
-    Usage: exit
-    To exit the shell
-
-    global ignore
-You can use this shell as if you are using your terminal.
-Any other command is executed by your default shell
-"""
+        return str("Command: cd\n"
+                "\tUsage: cd <path>\n"
+                "\tUsed to change the current working directory\n\n"
+                "Command: todos\n"
+                "\tUsage: todos\n"
+                "\tUsed to get all the ToDos from monorepos/monorepo\n\n"
+                "Command: exit\n"
+                "\tUsage: exit\n"
+                "\tTo exit the shell\n\n"
+                "You can use this shell as if you are using your terminal.\n"
+                "Any other command is executed by your default shell"
+        )
 
     # === TO EXIT === #     
     elif command.lower().startswith("exit") :
