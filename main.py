@@ -9,8 +9,12 @@ class JsonParser:
         self.command = cmd
         self.folder = folder_dir
 
-    def output(self):
-        print(self.contents[self.folder][self.command])
+    def check_cmd(self):
+        try:
+            os.system(self.contents[self.folder][self.command])
+            return True
+        except KeyError:
+            return False
 class MyCompleter(object):
     def __init__(self, options):
         self.options = sorted(options)
@@ -131,8 +135,8 @@ Any other command is executed by your default shell
         exit_ = True
 
     else:
-        JsonParser(file=os.path.join(PARENT_DIR,"workflow.json"),cmd=command,folder_dir=os.path.basename(os.getcwd())).output()
-        os.system(command)
+        if JsonParser(file=os.path.join(PARENT_DIR,"workflow.json"),cmd=command,folder_dir=os.path.basename(os.getcwd())).check_cmd() == False:
+            os.system(command)
 
 if __name__ == "__main__":
     # === SETUP ARGPARSE === #
