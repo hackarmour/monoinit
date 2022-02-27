@@ -36,10 +36,10 @@ def git_ignore_scan()-> list:
 
 # === GET TODOS === #
 def todos(folder: str) -> str:
-    def _(path: str) -> list:
+    def getFiles(path: str) -> list:
         files = []
         for i in os.listdir(path):
-            if os.path.isdir(os.path.join(path, i)): files += _(os.path.join(path, i))
+            if os.path.isdir(os.path.join(path, i)): files += getFiles(os.path.join(path, i))
             elif (
                 b"ascii" in subprocess.run(
                     ["file", "--mime-encoding", os.path.join(path, i)],
@@ -51,7 +51,7 @@ def todos(folder: str) -> str:
         return files
 
     files, c = {}, os.getcwd()
-    for i in _(folder): #! @TheEmperor342 test this out!!!
+    for i in getFiles(folder):
         with open(i, 'r') as f:
             for lineNo, item in enumerate(f.readlines()):
                 if not ("TODO" in item): continue
@@ -123,12 +123,72 @@ def shell(command: str) -> typing.Any:
                 "Command: todos\n"
                 "\tUsage: todos\n"
                 "\tUsed to get all the ToDos from monorepos/monorepo\n\n"
+                "Command: newcommand\n"
+                "\tUsage: newcommand\n"
+                "\tUsed to add a new command to a monorepo\n\n"
+                "Command: rmcommand\n"
+                "\tUsage: rmcommand\n"
+                "\tUsed to remove a command from a monorepo\n\n"
                 "Command: exit\n"
                 "\tUsage: exit\n"
                 "\tTo exit the shell\n\n"
                 "You can use this shell as if you are using your terminal.\n"
                 "Any other command is executed by your default shell"
         )
+
+    # === INITIALIZE MONOREPO === #
+    elif command.lower().startswith("init"):
+        if os.getcwd() != PARENT_DIR:
+            return "You need to be in the root directory of the monorepo to run this command."
+        
+        name = input("Enter the name of the new monorepo\n==> ")
+        folder_name = input("Enter the name of the monorepo folder\n==> ")
+        with open("workflow.json", 'w') as f:
+            WORKFLOW[name] = {"folder": folder_name}
+            os.mkdir(os.path.join(PARENT_DIR, folder_name))
+            json.dump(WORKFLOW, f, indent=4)
+        
+        return f"Created a new monorepo named {name}"
+
+    # === ADD COMMANDS IN A MONOREPO === #
+    elif command.lower().startswith("newcommand"):
+        command = input("How do you want to invoke the custom command?\n==> ")
+        func = input("What do you want the command to do? (What command does it run?)\n==> ")
+        n = '\n'
+
+        monorepoName = input(
+            "Enter the name of the monorepo where you want the command to be in\n"
+            f"{n.join((monorepos := list(WORKFLOW.keys())))}\n"
+            "==> "
+        )
+        if monorepoName not in monorepos: return "No such monorepo exists"
+
+        with open("workflow.json", 'w') as f:
+            WORKFLOW[monorepoName][command] = func
+            json.dump(WORKFLOW, f, indent=4)
+    
+    # === REMOVE COMMANDS === #
+    elif command.lower().startswith("rmcommand"):
+        n = "\n"
+        monorepoName = input(
+            "Enter the name of the monorepo where you want to remove the command\n"
+            f"{n.join((monorepos := list(WORKFLOW.keys())))}\n"
+            "==> "
+        )
+        if monorepoName not in monorepos: return "No such monorepo exists"
+
+        commands = list(WORKFLOW[monorepoName].keys())
+        commands.remove("folder")
+        command = input(
+            "Which command do you want to remove?\n"
+            f"{n.join(commands)}\n"
+            "==> "
+        )
+        if command not in commands: return "No such command exists"
+        
+        with open("workflow.json", 'w') as f:
+            del WORKFLOW[monorepoName][command]
+            json.dump(WORKFLOW, f, indent=4)
 
     # === TO EXIT === #     
     elif command.lower().startswith("exit") :
