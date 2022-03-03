@@ -122,13 +122,13 @@ def shell(command: str) -> typing.Any:
                 "\tUsed to change the current working directory\n\n"
                 "Command: todos\n"
                 "\tUsage: todos\n"
-                "\tUsed to get all the ToDos from monorepos/monorepo\n\n"
+                "\tUsed to get all the ToDos from the repos\n\n"
                 "Command: newcommand\n"
                 "\tUsage: newcommand\n"
-                "\tUsed to add a new command to a monorepo\n\n"
+                "\tUsed to add a new command to a repo\n\n"
                 "Command: rmcommand\n"
                 "\tUsage: rmcommand\n"
-                "\tUsed to remove a command from a monorepo\n\n"
+                "\tUsed to remove a command from a repo\n\n"
                 "Command: exit\n"
                 "\tUsage: exit\n"
                 "\tTo exit the shell\n\n"
@@ -136,32 +136,32 @@ def shell(command: str) -> typing.Any:
                 "Any other command is executed by your default shell"
         )
 
-    # === INITIALIZE MONOREPO === #
+    # === INITIALIZE REPO === #
     elif command.lower().startswith("init"):
         if os.getcwd() != PARENT_DIR:
-            return "You need to be in the root directory of the monorepo to run this command."
+            return "You need to be in the root directory of the repo to run this command."
         
-        name = input("Enter the name of the new monorepo\n==> ")
-        folder_name = input("Enter the name of the monorepo folder\n==> ")
+        name = input("Enter the name of the new repo\n==> ")
+        folder_name = input("Enter the name of the repo folder\n==> ")
         with open("workflow.json", 'w') as f:
             WORKFLOW[name] = {"folder": folder_name}
             os.mkdir(os.path.join(PARENT_DIR, folder_name))
             json.dump(WORKFLOW, f, indent=4)
         
-        return f"Created a new monorepo named {name}"
+        return f"Created a new repo named {name}"
 
-    # === ADD COMMANDS IN A MONOREPO === #
+    # === ADD COMMANDS IN A REPO === #
     elif command.lower().startswith("newcommand"):
         command = input("How do you want to invoke the custom command?\n==> ")
         func = input("What do you want the command to do? (What command does it run?)\n==> ")
         n = '\n'
 
-        monorepoName = input(
-            "Enter the name of the monorepo where you want the command to be in\n"
-            f"{n.join((monorepos := list(WORKFLOW.keys())))}\n"
+        monorepoName = input( # TODO: fix this var name to "repoName"
+            "Enter the name of the repo where you want the command to be in\n"
+            f"{n.join((monorepos := list(WORKFLOW.keys())))}\n" # # TODO: fix this var name to "repos"
             "==> "
         )
-        if monorepoName not in monorepos: return "No such monorepo exists"
+        if monorepoName not in monorepos: return "No such repo exists"
 
         with open("workflow.json", 'w') as f:
             WORKFLOW[monorepoName][command] = func
@@ -171,11 +171,11 @@ def shell(command: str) -> typing.Any:
     elif command.lower().startswith("rmcommand"):
         n = "\n"
         monorepoName = input(
-            "Enter the name of the monorepo where you want to remove the command\n"
+            "Enter the name of the repo where you want to remove the command\n"
             f"{n.join((monorepos := list(WORKFLOW.keys())))}\n"
             "==> "
         )
-        if monorepoName not in monorepos: return "No such monorepo exists"
+        if monorepoName not in monorepos: return "No such repo exists"
 
         commands = list(WORKFLOW[monorepoName].keys())
         commands.remove("folder")
@@ -218,10 +218,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'path',
-        metavar='path/to/monorepo',
+        metavar='path/to/repo',
         type=str,
         nargs='+',
-        help='Input monorepo path to monoinit'
+        help='Input repo path to monoinit'
     )
 
     # === GET ARGUMENTS === #
@@ -231,7 +231,7 @@ if __name__ == "__main__":
     if not os.path.isdir(args.path[0]):
         sys.exit("Path not recognized")
 
-    # === TO CHECK IF THE DIRECTORY CONTAINS MONOREPOS === #
+    # === TO CHECK IF THE DIRECTORY CONTAINS REPOS === #
     elif "workflow.json" not in os.listdir(args.path[0]):
         sys.exit("The path specified doesn't have a workflow.json file")
 
