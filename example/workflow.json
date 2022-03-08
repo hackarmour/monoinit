@@ -1,0 +1,13 @@
+{
+    "py1": {
+        "folder": "py1",
+        "run": "python3 main.py",
+        "test": "npm run test"
+    },
+    "py2": {
+        "folder": "py2",
+        "install": "pip install --upgrade -r requirements.txt",
+        "run": "python3 main.py",
+        "build": "python3 -m build"
+    }
+}
