@@ -38,7 +38,7 @@ Meant to be shipped with each monorepo (main.py is standalone) for better toolin
 Here `nodeServer`, `todoClient`, `goServer` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands all these projects has. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders.
 
 ## Screenshot of the shell
-![image](https://cdn.discordapp.com/attachments/840914901462810654/947486773821444106/unknown.png)
+![image](https://user-images.githubusercontent.com/63333626/157265006-e73b79ff-cc54-47ac-9432-1bd1398f8199.png)
 
 
 ### Team
