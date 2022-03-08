@@ -1,12 +1,15 @@
-# === IMPORT MODULES === #
-import os, typing, argparse, sys, readline, json, subprocess
-from cmd import Cmd
+import os, sys
 
 if os.name == "nt":
     sys.exit(
         "This script is designed to run only on unix based systems.\n"
         "Please use Windows Subsystem for Linux."
     )
+
+# === IMPORT MODULES === #
+import typing, argparse, readline, json, subprocess
+from cmd import Cmd
+
 
 # === COMPLETER === #
 class Completer(object):
@@ -50,20 +53,23 @@ def todos(folder: str) -> str:
         
         return files
 
-    files, c = {}, os.getcwd()
+    files, c, n = {}, os.getcwd(), '\n'
     for i in getFiles(folder):
         with open(i, 'r') as f:
             for lineNo, item in enumerate(f.readlines()):
-                if not ("TODO" in item): continue
-
+                if len([k for k in ["#todo", "//todo"] if k in item.lower().replace(" ", "")]) == 0:
+                    continue
+                
+                
                 if i not in list(files.keys()):
-                    files[i] = [f"{lineNo+1}. | {item}"]
+                    files[i] = [f"{lineNo+1}. | {item.strip(n)}"]
                 else:
-                    files[i].append(f"{lineNo+1}. | {item}")
+                    files[i].append(f"{lineNo+1}. | {item.strip(n)}")
     fancyReturn = ""
     n = "\n\t"
+    
     for i in list(files.keys()):
-        fancyReturn += f"Path: {i[len(c)+1:]}\n\t{n.join(files[i])}\n"
+        fancyReturn += f"\nPath: {i[len(c)+1:]}\n\t{n.join(files[i])}\n"
 
     return fancyReturn[:-1]
 
@@ -123,6 +129,9 @@ def shell(command: str) -> typing.Any:
                 "Command: todos\n"
                 "\tUsage: todos\n"
                 "\tUsed to get all the ToDos from the repos\n\n"
+                "Command: init\n"
+                "\tUsage: init\n"
+                "\tUsed to create a new repo\n\n"
                 "Command: newcommand\n"
                 "\tUsage: newcommand\n"
                 "\tUsed to add a new command to a repo\n\n"
@@ -156,28 +165,28 @@ def shell(command: str) -> typing.Any:
         func = input("What do you want the command to do? (What command does it run?)\n==> ")
         n = '\n'
 
-        monorepoName = input( # TODO: fix this var name to "repoName"
+        repoName = input(
             "Enter the name of the repo where you want the command to be in\n"
-            f"{n.join((monorepos := list(WORKFLOW.keys())))}\n" # # TODO: fix this var name to "repos"
+            f"{n.join((repos := list(WORKFLOW.keys())))}\n"
             "==> "
         )
-        if monorepoName not in monorepos: return "No such repo exists"
+        if repoName not in repos: return "No such repo exists"
 
         with open("workflow.json", 'w') as f:
-            WORKFLOW[monorepoName][command] = func
+            WORKFLOW[repoName][command] = func
             json.dump(WORKFLOW, f, indent=4)
     
     # === REMOVE COMMANDS === #
     elif command.lower().startswith("rmcommand"):
         n = "\n"
-        monorepoName = input(
+        repoName = input(
             "Enter the name of the repo where you want to remove the command\n"
-            f"{n.join((monorepos := list(WORKFLOW.keys())))}\n"
+            f"{n.join((repos := list(WORKFLOW.keys())))}\n"
             "==> "
         )
-        if monorepoName not in monorepos: return "No such repo exists"
+        if repoName not in repos: return "No such repo exists"
 
-        commands = list(WORKFLOW[monorepoName].keys())
+        commands = list(WORKFLOW[repoName].keys())
         commands.remove("folder")
         command = input(
             "Which command do you want to remove?\n"
@@ -187,7 +196,7 @@ def shell(command: str) -> typing.Any:
         if command not in commands: return "No such command exists"
         
         with open("workflow.json", 'w') as f:
-            del WORKFLOW[monorepoName][command]
+            del WORKFLOW[repoName][command]
             json.dump(WORKFLOW, f, indent=4)
 
     # === TO EXIT === #     
@@ -195,17 +204,17 @@ def shell(command: str) -> typing.Any:
         exit_ = True
 
     else:
-        monorepos = []
+        repos = []
         for i in WORKFLOW:
             if command in list(WORKFLOW[i].keys())[1:]:
-                monorepos.append(i)
+                repos.append(i)
 
         if os.getcwd() != PARENT_DIR:
             os.system(command)
             return
 
-        if len(monorepos) > 0:
-            for i in monorepos:
+        if len(repos) > 0:
+            for i in repos:
                 print(f"==> Switching to {WORKFLOW[i]['folder']}")
                 os.chdir(WORKFLOW[i]["folder"])
                 os.system(WORKFLOW[i][command])
