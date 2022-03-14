@@ -185,7 +185,6 @@ def shell(command: str) -> typing.Any:
             "==> "
         )
         if repoName not in repos: return "No such repo exists"
-
         commands = list(WORKFLOW[repoName].keys())
         commands.remove("folder")
         command = input(
@@ -258,7 +257,13 @@ if __name__ == "__main__":
             for i in WORKFLOW:
                 if "folder" not in list(WORKFLOW[i].keys()):
                     sys.exit(f"workflow.json: There is no \"folder\" variable in \"{i}\"")
-    
+            for i in WORKFLOW:                
+                json_str = json.dumps(WORKFLOW)
+                resp = json.loads(json_str)
+                if(os.path.isdir((resp[i]['folder']))):   
+                    pass
+                else:
+                    sys.exit(f"workflow.json: {resp[i]['folder']} does not exist.")    
     # === IF THIS TURNS TRUE, THE SCRIPT STOPS === #
     exit_ = False
 
