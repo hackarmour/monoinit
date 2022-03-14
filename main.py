@@ -242,7 +242,10 @@ if __name__ == "__main__":
 
     # === TO CHECK IF THE DIRECTORY CONTAINS REPOS === #
     elif "workflow.json" not in os.listdir(args.path[0]):
-        sys.exit("The path specified doesn't have a workflow.json file")
+        with open(os.path.join(args.path[0], 'workflow.json'), 'w') as fp:
+            pass
+        sys.exit("The path specified doesn't have a workflow.json file. Creating workflow.json")
+
 
     # === CHANGE DIRECTORY TO THE PATH === #
     os.chdir(args.path[0])
