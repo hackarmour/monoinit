@@ -57,7 +57,7 @@ def todos(folder: str) -> str:
     for i in getFiles(folder):
         cmd = '#[[:blank:]]\+todo' if i.endswith('.py') else '//[[:blank:]]\+todo'
         if (x := subprocess.getoutput(
-            f"cat {i} | grep -in -e \"{cmd}\" -e \"{'#todo' if i.endswith('.py') else '//todo'}\""
+            f"grep -in -e \"{cmd}\" -e \"{'#todo' if i.endswith('.py') else '//todo'}\" {i}"
         )) == "": continue
 
         print(f"FILE: {i[len(PARENT_DIR)+1:]}\n\t{x}")
@@ -215,28 +215,37 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'path',
-        metavar='path/to/repo',
+        metavar='path/to/monorepo',
         type=str,
-        nargs='+',
+        const=None,
+        nargs='?',
         help='Input repo path to monoinit'
     )
 
     # === GET ARGUMENTS === #
     args = parser.parse_args()
 
-    # === IF THE PATH DOESN'T EXIST === #
-    if not os.path.isdir(args.path[0]):
-        sys.exit("Path not recognized")
+    if args.path is None:
+        if "workflow.json" not in os.listdir():
+            with open('workflow.json', 'w') as f:
+                f.write("{}")
+            print("The path specified doesn't have a workflow.json file. Creating workflow.json")
 
+    # === IF THE PATH DOESN'T EXIST === #
+    elif not os.path.isdir(args.path):
+        sys.exit("Path not recognized")
+    
     # === TO CHECK IF THE DIRECTORY CONTAINS REPOS === #
-    elif "workflow.json" not in os.listdir(args.path[0]):
-        with open(os.path.join(args.path[0], 'workflow.json'), 'w') as fp:
-            pass
-        sys.exit("The path specified doesn't have a workflow.json file. Creating workflow.json")
+    elif "workflow.json" not in os.listdir(args.path):
+        with open(os.path.join(args.path[0], 'workflow.json'), 'w') as f:
+            f.write("{}")
+        print("The path specified doesn't have a workflow.json file. Creating workflow.json")
+
 
 
     # === CHANGE DIRECTORY TO THE PATH === #
-    os.chdir(args.path[0])
+    if args.path is not None: os.chdir(args.path)
+
 
     # === GLOBAL VARIABLES === #
     PARENT_DIR = os.getcwd()
@@ -246,13 +255,12 @@ if __name__ == "__main__":
             for i in WORKFLOW:
                 if "folder" not in list(WORKFLOW[i].keys()):
                     sys.exit(f"workflow.json: There is no \"folder\" variable in \"{i}\"")
-            for i in WORKFLOW:                
-                json_str = json.dumps(WORKFLOW)
-                resp = json.loads(json_str)
-                if(os.path.isdir((resp[i]['folder']))):   
+            for i in WORKFLOW:
+                if(os.path.isdir(WORKFLOW[i]['folder'])):
                     pass
                 else:
-                    sys.exit(f"workflow.json: {resp[i]['folder']} does not exist.")    
+                    sys.exit(f"workflow.json: {WORKFLOW[i]['folder']} does not exist.")
+                    
     # === IF THIS TURNS TRUE, THE SCRIPT STOPS === #
     exit_ = False
 
