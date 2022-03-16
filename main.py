@@ -55,23 +55,12 @@ def todos(folder: str) -> str:
 
     files, c, n = {}, os.getcwd(), '\n'
     for i in getFiles(folder):
-        with open(i, 'r') as f:
-            for lineNo, item in enumerate(f.readlines()):
-                if len([k for k in ["#todo", "//todo"] if k in item.lower().replace(" ", "")]) == 0:
-                    continue
-                
-                
-                if i not in list(files.keys()):
-                    files[i] = [f"{lineNo+1}. | {item.strip(n)}"]
-                else:
-                    files[i].append(f"{lineNo+1}. | {item.strip(n)}")
-    fancyReturn = ""
-    n = "\n\t"
-    
-    for i in list(files.keys()):
-        fancyReturn += f"\nPath: {i[len(c)+1:]}\n\t{n.join(files[i])}\n"
+        cmd = '#[[:blank:]]\+todo' if i.endswith('.py') else '//[[:blank:]]\+todo'
+        if (x := subprocess.getoutput(
+            f"cat {i} | grep -in -e \"{cmd}\" -e \"{'#todo' if i.endswith('.py') else '//todo'}\""
+        )) == "": continue
 
-    return fancyReturn[:-1]
+        print(f"FILE: {i[len(PARENT_DIR)+1:]}\n\t{x}")
 
 # === SHELL === #
 def shell(command: str) -> typing.Any:
