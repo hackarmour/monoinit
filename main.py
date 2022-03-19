@@ -7,7 +7,7 @@ if os.name == "nt":
     )
 
 # === IMPORT MODULES === #
-import typing, argparse, readline, json, subprocess
+import typing, argparse, readline, json, subprocess, traceback
 from cmd import Cmd
 
 
@@ -84,6 +84,20 @@ def shell(command: str) -> typing.Any:
         if len(command.strip().split()) > 1: return "Extra arguments passed"
         return todos(os.getcwd())
 
+    # === UPDATE === #
+    elif command.lower() == "update":
+        try:
+            os.chdir("/tmp")
+            os.system("wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py")
+            if "main.py" in os.listdir(): 
+                os.system(f"cp ./main.py {__file__}")
+                os.system("rm main.py")
+            else: raise Exception("Cannot receive file from upstream")
+            sys.exit("MonoInit has been updated. Please rerun the script.")
+
+        except Exception:
+            traceback.print_exc()
+
     # === COMMIT MESSAGE === #
     elif command.lower().startswith("git"):
         # === KEEP THE CURRENT PATH === #
@@ -127,6 +141,9 @@ def shell(command: str) -> typing.Any:
                 "Command: rmcommand\n"
                 "\tUsage: rmcommand\n"
                 "\tUsed to remove a command from a repo\n\n"
+                "Command: update\n"
+                "\tUsage: update\n"
+                "\tTo update monoinit\n\n"
                 "Command: exit\n"
                 "\tUsage: exit\n"
                 "\tTo exit the shell\n\n"
