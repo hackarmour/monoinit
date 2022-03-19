@@ -7,7 +7,7 @@ if os.name == "nt":
     )
 
 # === IMPORT MODULES === #
-import typing, argparse, readline, json, subprocess
+import typing, argparse, readline, json, subprocess, traceback
 from cmd import Cmd
 
 
@@ -84,19 +84,32 @@ def shell(command: str) -> typing.Any:
         if len(command.strip().split()) > 1: return "Extra arguments passed"
         return todos(os.getcwd())
 
+    # === UPDATE === #
+    elif command.lower() == "update":
+        try:
+            os.chdir("/tmp")
+            os.system("wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py")
+            if "main.py" in os.listdir(): 
+                os.system(f"cp ./main.py {__file__}")
+                os.system("rm main.py")
+            else: raise Exception("Cannot receive file from upstream")
+            sys.exit("MonoInit has been updated. Please rerun the script.")
+
+        except Exception:
+            traceback.print_exc()
+
     # === COMMIT MESSAGE === #
     elif command.lower().startswith("git"):
         # === KEEP THE CURRENT PATH === #
         cur_path = os.getcwd()
 
-        # === CHANGE PATH TO PARENT DIRECTORY === #
-        os.chdir(PARENT_DIR)
 
         # === IF THE COMMAND IS A COMMIT === #
         if command.lower().startswith("git commit -m"):
             # === COMMIT FORMATTING === #
             b = "\""
             commit = command.split(f"{b}")
+
             commit[1] = f'{os.path.basename(os.getcwd())}: {command.split(f"{b}")[1]}'
 
             # === RUN COMMAND === #
@@ -104,17 +117,22 @@ def shell(command: str) -> typing.Any:
             
             # === EXIT FUNCTION === #
             return
+
+        # === CHANGE PATH TO PARENT DIRECTORY === #
+        os.chdir(PARENT_DIR)
         if command.lower().startswith("git log"):os.system("git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit")
 
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
-        os.system(command)
+        else:
+            os.system(command)
+
         os.chdir(cur_path)
         
+        # yeah this is a fine example of me being a bag of potatoes
+
     # === HELP === #
     elif command.lower().startswith("help"):
-        return str("Command: cd\n"
-                "\tUsage: cd <path>\n"
-                "\tUsed to change the current working directory\n\n"
+        return str(
                 "Command: todos\n"
                 "\tUsage: todos\n"
                 "\tUsed to get all the ToDos from the repos\n\n"
@@ -127,11 +145,14 @@ def shell(command: str) -> typing.Any:
                 "Command: rmcommand\n"
                 "\tUsage: rmcommand\n"
                 "\tUsed to remove a command from a repo\n\n"
+                "Command: update\n"
+                "\tUsage: update\n"
+                "\tTo update monoinit\n\n"
                 "Command: exit\n"
                 "\tUsage: exit\n"
                 "\tTo exit the shell\n\n"
                 "You can use this shell as if you are using your terminal.\n"
-                "Any other command is executed by your default shell"
+                "Any other command is executed by /bin/sh"
         )
 
     # === INITIALIZE REPO === #
