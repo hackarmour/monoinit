@@ -127,8 +127,6 @@ def shell(command: str) -> typing.Any:
             os.system(command)
 
         os.chdir(cur_path)
-        
-        # yeah this is a fine example of me being a bag of potatoes
 
     # === HELP === #
     elif command.lower().startswith("help"):
