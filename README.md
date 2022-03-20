@@ -4,7 +4,7 @@ Monorepo initialiser for hackarmour written in python.
 ## Getting Started
 You need `git`, `wget` and `python3` to use monoinit.
 
-This script is expected to be ran only on *NIX systems. If you're on windows, please use Windows Subsystem for Linux.
+This script is expected to run only on *NIX systems. If you're on windows, please use Windows Subsystem for Linux.
 
 Use the following command to get monoinit in your project:
 ```bash
