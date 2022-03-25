@@ -2,7 +2,9 @@
 Monorepo initialiser for hackarmour written in python.
 
 ## Getting Started
-You need `git`, `wget` and `python3` to use monoinit.
+You need `git`, `wget`, `python3` and [tmux](https://github.com/tmux/tmux/wiki) to use monoinit.
+
+[Here](https://tmuxcheatsheet.com/) is the tmux cheatsheet.
 
 This script is expected to run only on *NIX systems. If you're on windows, please use Windows Subsystem for Linux.
 
