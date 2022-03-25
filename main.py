@@ -10,7 +10,6 @@ if os.name == "nt":
 import typing, argparse, readline, json, subprocess, traceback
 from cmd import Cmd
 
-
 # === COMPLETER === #
 class Completer(object):
     def __init__(self, options):
@@ -207,25 +206,32 @@ def shell(command: str) -> typing.Any:
             json.dump(WORKFLOW, f, indent=4)
 
     # === TO EXIT === #     
-    elif command.lower().startswith("exit") :
+    elif command.lower().startswith("exit"):
         exit_ = True
 
     else:
-        repos = []
+        commands = {}
         for i in WORKFLOW:
             if command in list(WORKFLOW[i].keys())[1:]:
-                repos.append(i)
+                commands[WORKFLOW[i]["folder"]] = WORKFLOW[i][command]
 
         if os.getcwd() != PARENT_DIR:
             os.system(command)
             return
 
-        if len(repos) > 0:
-            for i in repos:
-                print(f"==> Switching to {WORKFLOW[i]['folder']}")
-                os.chdir(WORKFLOW[i]["folder"])
-                os.system(WORKFLOW[i][command])
-                os.chdir(PARENT_DIR)
+        elif len(commands) == 1:
+            os.chdir(list(commands.keys())[0])
+            os.system(commands[list(commands.keys())[0]])
+            os.chdir(PARENT_DIR)
+
+        elif len(commands) > 0:
+            keys = list(commands.keys())
+            for index, item in enumerate(commands.values()):
+                commands[keys[index]] = \
+                    f"{'tmux new-session' if index == 0 else 'new-window'} " \
+                    f"\'cd {keys[index]} && {item} && sh -c read\'\\;"
+            os.system(" ".join(commands.values()))
+        
         else:
             os.system(command)
 
