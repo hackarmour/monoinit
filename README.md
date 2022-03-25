@@ -37,8 +37,13 @@ Meant to be shipped with each monorepo (This script is standalone) for better to
 
 Here `socket` and `client` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands these projects have. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders.
 
+You can also specify the repo to run the command in when running a custom command. For example:
+```bash
+run client # the script will run the corresponding command only in the client repo
+```
+
 ## Commands
-MonoInit is like the default `/bin/sh` except it has some more commands to help you with managing your /monorepo.
+MonoInit is like the default `/bin/sh` except it has some more commands to help you with managing your monorepo.
 
 - `init`
     This command will initialise an empty repo. 
