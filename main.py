@@ -212,8 +212,11 @@ def shell(command: str) -> typing.Any:
     else:
         commands = {}
         for i in WORKFLOW:
-            if command in list(WORKFLOW[i].keys())[1:]:
-                commands[WORKFLOW[i]["folder"]] = WORKFLOW[i][command]
+            try:
+                if (cmd := command.strip().split()[0]) in list(WORKFLOW[i].keys())[1:]:
+                    commands[WORKFLOW[i]["folder"]] = WORKFLOW[i][cmd]
+            except IndexError:
+                return None
 
         if os.getcwd() != PARENT_DIR:
             os.system(command)
@@ -225,12 +228,27 @@ def shell(command: str) -> typing.Any:
             os.chdir(PARENT_DIR)
 
         elif len(commands) > 0:
-            keys = list(commands.keys())
-            for index, item in enumerate(commands.values()):
-                commands[keys[index]] = \
-                    f"{'tmux new-session' if index == 0 else 'new-window'} " \
-                    f"\'cd {keys[index]} && {item} && sh -c read\'\\;"
-            os.system(" ".join(commands.values()))
+            if len((arguments := command.strip().split())) == 1:
+                keys = list(commands.keys())
+                for index, item in enumerate(commands.values()):
+                    commands[keys[index]] = \
+                        f"{'tmux new-session' if index == 0 else 'new-window'} " \
+                        f"\'cd {keys[index]} && {item} && sh -c read\'\\;"
+                os.system(" ".join(commands.values()))
+            
+            else:
+
+                arguments, tmux_cmd = arguments[1:], {}
+
+                keys = list(WORKFLOW.keys())
+                for index, item in enumerate(commands.values()):
+                    if keys[index] not in arguments: continue
+                    tmux_cmd[keys[index]] = \
+                        f"{'tmux new-session' if len(tmux_cmd) == 0 else 'new-window'} " \
+                        f"\'cd {WORKFLOW[keys[index]]['folder']} && {item} && sh -c read\'\\;"
+
+                if len(tmux_cmd) == 0: return "Invalid repo(s)"
+                os.system(" ".join(tmux_cmd.values()))
         
         else:
             os.system(command)
