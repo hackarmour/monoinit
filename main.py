@@ -210,7 +210,7 @@ def shell(command: str) -> typing.Any:
         exit_ = True
 
     else:
-        commands = {}
+        commands, TERM = {}, os.environ["TERM"]
         for i in WORKFLOW:
             try:
                 if (cmd := command.strip().split()[0]) in list(WORKFLOW[i].keys())[1:]:
@@ -231,9 +231,12 @@ def shell(command: str) -> typing.Any:
             if len((arguments := command.strip().split())) == 1:
                 keys = list(commands.keys())
                 for index, item in enumerate(commands.values()):
+                    if TERM == "screen" and index == 0: _ = "tmux new-window"
+                    elif index == 0: _ = "tmux new-session"
+                    elif (index+1) % 2 == 0: _ = "split-window"
+                    elif index != 0: _ = "new-window"
                     commands[keys[index]] = \
-                        f"{'tmux new-session' if index == 0 else 'new-window'} " \
-                        f"\'cd {keys[index]} && {item} && sh -c read\'\\;"
+                        f"{_} \'cd {keys[index]} && {item} && sh -c read\'\\;"
                 os.system(" ".join(commands.values()))
             
             else:
