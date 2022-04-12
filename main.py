@@ -316,7 +316,7 @@ if __name__ == "__main__":
         print(f'{GREEN}◆ {LIGHT_BLUE}{os.path.basename(os.getcwd())}{RESET}', end=" ")
 
         # ===Completer=== #
-        completer = Completer([file for root, dirs, file in os.walk(PARENT_DIR)][0])
+        completer = Completer([files for root,dirs,files in os.walk(os.getcwd())][0]+[dirs for root,dirs,files in os.walk(os.getcwd())][0]) 
         readline.parse_and_bind('tab: complete')
         readline.set_completer(completer.complete)
 
