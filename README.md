@@ -60,12 +60,7 @@ MonoInit is like the default `/bin/sh` except it has some more commands to help 
 
 Apart from these commands, you can use all the other commands on your machine.
 
-## Features
-- Commit message formatting: When commiting changes to upstream by switching into a repo, monoinit will format the commit as
-
-![image](https://user-images.githubusercontent.com/83999665/159155911-3e2d300c-3d9c-4f45-9787-1194826bd566.png)
-
-
+## Other Features
 - git log: Running `git log` will output a beautified git log graph.
 
 ![image](https://user-images.githubusercontent.com/83999665/159155974-a5bf031b-3948-4759-93e4-2b5f1a32d144.png)
@@ -75,4 +70,4 @@ ___
 ### Team
 
 - Project Lead - [@ujjwal-kr](https://github.com/ujjwal-kr)
-- Devs - [@mrHola21](https://github.com/mrHola21), [@TheEmperor342](https://github.com/TheEmperor342)
+- Devs - [@TheEmperor342](https://github.com/TheEmperor342), [@mrHola21](https://github.com/mrHola21)

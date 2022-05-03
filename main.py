@@ -108,24 +108,6 @@ def shell(command: str) -> typing.Any:
         # === KEEP THE CURRENT PATH === #
         cur_path = os.getcwd()
 
-        # === IF THE COMMAND IS A COMMIT === #
-        # if command.lower().startswith("git commit -m"):
-        #     # === COMMIT FORMATTING === #
-        #     b = "\""
-        #     commit = command.split(f"{b}")
-
-        #     print(cur_path.split('/')[len(PARENT_DIR.split('/'))+1:])
-        #     if cur_path != PARENT_DIR:
-        #         commit[1] = \
-        #             f'{cur_path.split("/")[len(PARENT_DIR.split("/")):][0]}: {command.split(f"{b}")[1]}'
-        #     print("\"".join(commit))
-
-        #     # === RUN COMMAND === #
-        #     os.system("\"".join(commit))
-
-        #     # === EXIT FUNCTION === #
-        #     return
-
         # === CHANGE PATH TO PARENT DIRECTORY === #
         os.chdir(PARENT_DIR)
         if command == "git log":
@@ -142,7 +124,6 @@ def shell(command: str) -> typing.Any:
                 cmd += f"{'tmux new-session' if index == 0 else 'new-window'} '{item}' {bslash if index != len(cmds)-1 else '&& '}"
             cmd += command
 
-            print(cmd)
             os.system(cmd)
 
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
