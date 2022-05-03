@@ -3,11 +3,13 @@
         "folder": "py1",
         "run": "python3 main.py",
         "test": "python3 tests.py",
-		"echostuff": "echo 'hi!'"
+		"echostuff": "echo 'hi!'",
+        "hook": "echo testClient"
     },
     "node": {
         "folder": "py2",
         "install": "pip install --upgrade -r requirements.txt",
-        "run": "python3 main.py"
+        "run": "python3 main.py",
+        "hook": "echo node"
     }
 }

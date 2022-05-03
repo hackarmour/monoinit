@@ -109,18 +109,22 @@ def shell(command: str) -> typing.Any:
         cur_path = os.getcwd()
 
         # === IF THE COMMAND IS A COMMIT === #
-        if command.lower().startswith("git commit -m"):
-            # === COMMIT FORMATTING === #
-            b = "\""
-            commit = command.split(f"{b}")
+        # if command.lower().startswith("git commit -m"):
+        #     # === COMMIT FORMATTING === #
+        #     b = "\""
+        #     commit = command.split(f"{b}")
 
-            commit[1] = f'{os.path.basename(os.getcwd())}: {command.split(f"{b}")[1]}'
+        #     print(cur_path.split('/')[len(PARENT_DIR.split('/'))+1:])
+        #     if cur_path != PARENT_DIR:
+        #         commit[1] = \
+        #             f'{cur_path.split("/")[len(PARENT_DIR.split("/")):][0]}: {command.split(f"{b}")[1]}'
+        #     print("\"".join(commit))
 
-            # === RUN COMMAND === #
-            os.system("\"".join(commit))
+        #     # === RUN COMMAND === #
+        #     os.system("\"".join(commit))
 
-            # === EXIT FUNCTION === #
-            return
+        #     # === EXIT FUNCTION === #
+        #     return
 
         # === CHANGE PATH TO PARENT DIRECTORY === #
         os.chdir(PARENT_DIR)
@@ -128,6 +132,18 @@ def shell(command: str) -> typing.Any:
             os.system(
                 "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold "
                 "blue)<%an>%Creset' --abbrev-commit")
+
+        elif command.startswith("git add ."):
+            cmds, cmd, bslash = [], "", "\; "
+            for i in WORKFLOW:
+                if "hook" in list(WORKFLOW[i].keys()):
+                    cmds.append(f"{WORKFLOW[i]['hook']} ; read ")
+            for index, item in enumerate(cmds):
+                cmd += f"{'tmux new-session' if index == 0 else 'new-window'} '{item}' {bslash if index != len(cmds)-1 else '&& '}"
+            cmd += command
+
+            print(cmd)
+            os.system(cmd)
 
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
         else:
