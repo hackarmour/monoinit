@@ -115,7 +115,7 @@ def shell(command: str) -> typing.Any:
                 "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold "
                 "blue)<%an>%Creset' --abbrev-commit")
 
-        elif command.startswith("git add ."):
+        elif command.startswith("git add"):
             cmds, cmd, bslash = [], "", "\; "
             for i in WORKFLOW:
                 if "hook" in list(WORKFLOW[i].keys()):
