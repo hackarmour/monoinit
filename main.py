@@ -108,26 +108,31 @@ def shell(command: str) -> typing.Any:
         # === KEEP THE CURRENT PATH === #
         cur_path = os.getcwd()
 
-        # === IF THE COMMAND IS A COMMIT === #
-        if command.lower().startswith("git commit -m"):
-            # === COMMIT FORMATTING === #
-            b = "\""
-            commit = command.split(f"{b}")
-
-            commit[1] = f'{os.path.basename(os.getcwd())}: {command.split(f"{b}")[1]}'
-
-            # === RUN COMMAND === #
-            os.system("\"".join(commit))
-
-            # === EXIT FUNCTION === #
-            return
-
         # === CHANGE PATH TO PARENT DIRECTORY === #
         os.chdir(PARENT_DIR)
         if command == "git log":
             os.system(
                 "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold "
                 "blue)<%an>%Creset' --abbrev-commit")
+
+        elif command.startswith("git add"):
+            cmds, cmd, bslash, TERM = [], "", "\; ", os.environ["TERM"]
+            for i in WORKFLOW:
+                if "hook" in list(WORKFLOW[i].keys()):
+                    cmds.append(f"{WORKFLOW[i]['hook']} ; read ")
+            for index, item in enumerate(cmds):
+                if TERM == "screen" and index == 0:
+                    _ = "tmux new-window"
+                elif index == 0:
+                    _ = "tmux new-session"
+                elif (index + 1) % 2 == 0:
+                    _ = "split-window"
+                elif index != 0:
+                    _ = "new-window"
+                cmd += f"{_} \'{item}\' {bslash if index != len(cmds)-1 else '&& '}"
+            cmd += command
+
+            os.system(cmd)
 
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
         else:
