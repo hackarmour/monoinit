@@ -31,11 +31,12 @@ Meant to be shipped with each monorepo (This script is standalone) for better to
         "folder": "py2",
         "install": "pip install --upgrade -r requirements.txt",
         "run": "python3 main.py"
+        "hook": "lint"
     }
 }
 ```
 
-Here `socket` and `client` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands these projects have. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders.
+Here `socket` and `client` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands these projects have. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders. The `hook` field is optional and is not a command, it is executed each time when you run `git add` anywhere in the project.
 
 ## Commands
 MonoInit is like the default `/bin/sh` except it has some more commands to help you with managing your /monorepo.
