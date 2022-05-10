@@ -10,7 +10,7 @@ This script is expected to run only on *NIX systems. If you're on windows, pleas
 
 Use the following command to get monoinit in your project:
 ```bash
-wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O monoinit.py
+wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py
 ```
 
 Launch the monoinit shell using the following command:
