@@ -8,12 +8,12 @@ You need `git`, `wget`, `python3` and [tmux](https://github.com/tmux/tmux/wiki) 
 
 This script is expected to run only on *NIX systems. If you're on windows, please use Windows Subsystem for Linux.
 
-Use the following command to get monoinit in your project:
+Use the following command to get monoinit in your system:
 ```bash
 wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py
 ```
 
-Launch the monoinit shell using the following command:
+Launch the monoinit shell by navigating to the root directory of your monorepo using the following command:
 ```bash
 monoinit.py
 ```
