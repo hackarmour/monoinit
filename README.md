@@ -15,10 +15,10 @@ wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.lo
 
 Launch the monoinit shell using the following command:
 ```bash
-python3 monoinit.py
+monoinit
 ```
 
-Meant to be shipped with each monorepo (This script is standalone) for better tooling. Expects a file called `workflow.json` at the root of monorepo. This file has config for different commands the shell can run. Here's an example config:
+Expects a file called `workflow.json` at the root of monorepo. This file has config for different commands the shell can run. Here's an example config:
 
 ```json
 {
