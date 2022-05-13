@@ -92,7 +92,7 @@ def shell(command: str) -> typing.Any:
     elif command.lower() == "update":
         try:
             os.chdir("/tmp")
-            os.system("wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py")
+            os.system("wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py")
             if "main.py" in os.listdir():
                 os.system(f"cp ./main.py {__file__}")
                 os.system("rm main.py")
