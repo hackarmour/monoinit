@@ -66,7 +66,7 @@ Apart from these commands, you can use all the other commands on your machine.
 
 ![image](https://user-images.githubusercontent.com/83999665/159155974-a5bf031b-3948-4759-93e4-2b5f1a32d144.png)
 
-- hooks: the `hook` field in the workflow file will run the specified command for the particular repo each time the changes are added to the staging area via `git add`, this is useful for running linters, formaltters or some custom checks
+- hooks: the `hook` field in the workflow file will run the specified command for the particular repo each time the changes are added to the staging area via `git add`, this is useful for running linters, formatters or some custom checks
 
 ___
 
