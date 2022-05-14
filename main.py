@@ -118,10 +118,18 @@ def shell(command: str) -> typing.Any:
                 "blue)<%an>%Creset' --abbrev-commit")
 
         elif command.startswith("git add"):
+            if command == "git add":
+                print("Nothing specified, nothing added.\nMaybe run 'git add .'?")
+                return
             cmds, cmd, bslash, TERM = [], "", "\; ", os.environ["TERM"]
             for i in WORKFLOW:
                 if "hook" in list(WORKFLOW[i].keys()):
-                    cmds.append(f"{WORKFLOW[i]['hook']} ; read ")
+                    cmds.append(
+                        f"cd {os.path.join(PARENT_DIR, WORKFLOW[i]['folder'])} && " 
+                        f"{WORKFLOW[i]['hook']} && " 
+                        f"cd {PARENT_DIR} ; read "
+                    )
+            
             for index, item in enumerate(cmds):
                 if TERM == "screen" and index == 0:
                     _ = "tmux new-window"
