@@ -1,22 +1,30 @@
 # MonoInit Documentation
+
 Monorepo initialiser for hackarmour written in python.
 
 ## Getting Started
+
 You need `git`, `wget`, `python3` and [tmux](https://github.com/tmux/tmux/wiki) to use monoinit.
 
 [Here](https://tmuxcheatsheet.com/) is the tmux cheatsheet.
 
-This script is expected to run only on *NIX systems. If you're on windows, please use Windows Subsystem for Linux.
+This script is expected to run only on \*NIX systems. If you're on windows, please use Windows Subsystem for Linux.
 
 Use the following command to get monoinit in your system:
+
 ```bash
-mkdir -p ~/.local/bin/ && wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py && sudo chmod +x ~/.local/bin/monoinit.py
+mkdir -p ~/.local/bin/ && wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py && chmod +x ~/.local/bin/monoinit.py
 ```
 
 Launch the monoinit shell by navigating to the root directory of your monorepo using the following command:
+
 ```bash
 monoinit.py
 ```
+
+> The above command will work only if `~/.local/bin` is in PATH.
+
+## Configuration
 
 Expects a file called `workflow.json` at the root of monorepo. This file has config for different commands the shell can run. Here's an example config:
 
@@ -39,36 +47,38 @@ Expects a file called `workflow.json` at the root of monorepo. This file has con
 Here `socket` and `client` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands these projects have. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders. The `hook` field is optional and is not a command, it is executed each time when you run `git add` anywhere in the project.
 
 ## Commands
+
 MonoInit is like the default `/bin/sh` except it has some more commands to help you with managing your /monorepo.
 
 - `init`
-    This command will initialise an empty repo. 
+  This command will initialise an empty repo.
 
 - `newcommand`
-    Used to create a new command in a repo.
+  Used to create a new command in a repo.
 
 - `rmcommand`
-    Used to remove a command from a repo.
+  Used to remove a command from a repo.
 
 - `update`
-    This will update monoinit to the latest version.
+  This will update monoinit to the latest version.
 
 - `todos`
-    This command will go through all the files in the current working directory and list all the todos.
+  This command will go through all the files in the current working directory and list all the todos.
 
 - `exit`
-    This command is used to exit the monoinit shell.
+  This command is used to exit the monoinit shell.
 
 Apart from these commands, you can use all the other commands on your machine.
 
 ## Other Features
+
 - git log: Running `git log` will output a beautified git log graph.
 
 ![image](https://user-images.githubusercontent.com/83999665/159155974-a5bf031b-3948-4759-93e4-2b5f1a32d144.png)
 
 - hooks: the `hook` field in the workflow file will run the specified command for the particular repo each time the changes are added to the staging area via `git add`, this is useful for running linters, formatters or some custom checks
 
-___
+---
 
 ### Team
 
