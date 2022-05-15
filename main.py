@@ -96,15 +96,7 @@ def shell(command: str) -> typing.Any:
     # === UPDATE === #
     elif command.lower() == "update":
         try:
-            os.chdir("/tmp")
-            os.system("wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py")
-            if "main.py" in os.listdir():
-                os.system(f"cp ./main.py {__file__}")
-                os.system("rm main.py")
-            else:
-                raise Exception("Cannot receive file from upstream")
-            sys.exit("MonoInit has been updated. Please rerun the script.")
-
+            os.system("wget https://raw.githubusercontent.com/hackarmour/monoinit/main/main.py -O ~/.local/bin/monoinit.py && chmod +x ~/.local/bin/monoinit.py")
         except Exception:
             traceback.print_exc()
 
