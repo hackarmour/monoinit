@@ -112,10 +112,13 @@ def shell(command: str) -> typing.Any:
 
         # === CHANGE PATH TO PARENT DIRECTORY === #
         os.chdir(PARENT_DIR)
-        if command == "git log":
+
+        if command.startswith("git log"):
             os.system(
-                "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold "
-                "blue)<%an>%Creset' --abbrev-commit")
+                "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cbold "
+                f"blue)<%an>%Creset' --abbrev-commit "
+                f"{' '.join(command.split()[2:]) if command.strip() != 'git log' else ''}"
+            )
 
         elif command.startswith("git add"):
             if command == "git add":
