@@ -69,8 +69,11 @@ def todos(folder: str):
 def shell(command: str) -> typing.Any:
     global PARENT_DIR, exit_, IGNORE, WORKFLOW
 
+    if command.strip() == "":
+        return
+
     # === CHANGE DIRECTORY === #
-    if command.lower().startswith("cd"):
+    elif command.lower().startswith("cd"):
         if len((x := command.strip().split())) == 1:
             return "The path has not been supplied"
         elif len(x) > 2:
@@ -115,9 +118,9 @@ def shell(command: str) -> typing.Any:
 
         if command.startswith("git log"):
             os.system(
-                "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %Cbold "
+                "git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold "
                 f"blue)<%an>%Creset' --abbrev-commit "
-                f"{' '.join(command.split()[2:]) if command.strip() != 'git log' else ''}"
+                f"{' '.join(command.split()[2:]) if command.strip() != 'git log' else '.'}"
             )
 
         elif command.startswith("git add"):
