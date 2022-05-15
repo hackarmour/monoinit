@@ -100,13 +100,9 @@ def shell(command: str) -> typing.Any:
         except Exception:
             traceback.print_exc()
 
-    # === COMMIT MESSAGE === #
     elif command.lower().startswith("git"):
         # === KEEP THE CURRENT PATH === #
         cur_path = os.getcwd()
-
-        # === CHANGE PATH TO PARENT DIRECTORY === #
-        os.chdir(PARENT_DIR)
 
         if command.startswith("git log"):
             os.system(
