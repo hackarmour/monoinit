@@ -1,6 +1,6 @@
 # MonoInit Documentation
 
-Monorepo initialiser for hackarmour written in python.
+Monorepo build system for hackarmour to help manage simple monorepos using cmd snippets, shell spawning and more.
 
 ## Getting Started
 
