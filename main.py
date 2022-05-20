@@ -120,10 +120,10 @@ def shell(command: str) -> typing.Any:
                 if "hook" in list(WORKFLOW[i].keys()):
                     cmds.append(
                         f"cd {os.path.join(PARENT_DIR, WORKFLOW[i]['folder'])} && " 
-                        f"{WORKFLOW[i]['hook']} && " 
-                        f"cd {PARENT_DIR} ; read "
+                        f"{' && '.join(WORKFLOW[i]['hook']) if type(WORKFLOW[i]['hook']) == list else WORKFLOW[i]['hook']} && " 
+                        f"read "
                     )
-            
+
             for index, item in enumerate(cmds):
                 if TERM == "screen" and index == 0:
                     _ = "tmux new-window"
@@ -133,7 +133,7 @@ def shell(command: str) -> typing.Any:
                     _ = "split-window"
                 elif index != 0:
                     _ = "new-window"
-                cmd += f"{_} \'{item}\' {bslash if index != len(cmds)-1 else '&& '}"
+                cmd += f"{_} \"{item}\" {bslash if index != len(cmds)-1 else '&& '}"
             cmd += command
 
             os.system(cmd)

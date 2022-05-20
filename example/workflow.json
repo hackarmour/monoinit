@@ -10,6 +10,6 @@
         "folder": "py2",
         "install": "pip install --upgrade -r requirements.txt",
         "run": "python3 main.py",
-        "hook": "pwd"
+        "hook": ["pwd", "ls", "echo 'test hooks'"]
     }
 }
