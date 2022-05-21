@@ -117,12 +117,12 @@ def shell(command: str) -> typing.Any:
                 return
             cmds, cmd, bslash, TERM = [], "", "\; ", os.environ["TERM"]
             for i in WORKFLOW:
-                if "hook" in list(WORKFLOW[i].keys()):
-                    cmds.append(
-                        f"cd {os.path.join(PARENT_DIR, WORKFLOW[i]['folder'])} && " 
-                        f"{' && '.join(WORKFLOW[i]['hook']) if type(WORKFLOW[i]['hook']) == list else WORKFLOW[i]['hook']} && " 
-                        f"read "
-                    )
+                if "hooks" not in list(WORKFLOW[i].keys()): continue
+                cmds.append(
+                    f"cd {os.path.join(PARENT_DIR, WORKFLOW[i]['folder'])} && " 
+                    f"{' && '.join(WORKFLOW[i]['hooks']) if type(WORKFLOW[i]['hooks']) == list else WORKFLOW[i]['hooks']} && " 
+                    f"read "
+                )
 
             for index, item in enumerate(cmds):
                 if TERM == "screen" and index == 0:
