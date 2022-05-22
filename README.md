@@ -33,7 +33,11 @@ Expects a file called `workflow.json` at the root of monorepo. This file has con
     "socket": {
         "folder": "py1",
         "run": "python3 main.py",
-        "test": "python3 test.py"
+        "test": "python3 test.py",
+        "hooks": [
+          "lint",
+          "format"
+        ]
     },
     "client": {
         "folder": "py2",
@@ -44,7 +48,7 @@ Expects a file called `workflow.json` at the root of monorepo. This file has con
 }
 ```
 
-Here `socket` and `client` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands these projects have. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders. The `hook` field is optional and is not a command, it is executed each time when you run `git add` anywhere in the project.
+Here `socket` and `client` are the names of repos inside the monorepo. The goal of this file to let monoinit know all the common commands these projects have. For instance, when `run` command is ran at the root of the monorepo, monoinit searches for `run` in all of the repos, executes them together and aggregates the outputs and shows them all together. There's no point of running the command when the shell is inside one of the repo folders. The `hooks` field is optional and is executed when you run `git add` anywhere in the project.
 
 ## Commands
 
@@ -76,7 +80,7 @@ Apart from these commands, you can use all the other commands on your machine.
 
 ![image](https://user-images.githubusercontent.com/83999665/159155974-a5bf031b-3948-4759-93e4-2b5f1a32d144.png)
 
-- hooks: the `hook` field in the workflow file will run the specified command for the particular repo each time the changes are added to the staging area via `git add`, this is useful for running linters, formatters or some custom checks
+- hooks: the `hooks` field in the workflow file will run the specified command for the particular repo each time the changes are added to the staging area via `git add`, this is useful for running linters, formatters or some custom checks
 
 ---
 
