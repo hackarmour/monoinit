@@ -38,7 +38,7 @@ Expects a file called `workflow.json` at the root of monorepo. This file has con
     "client": {
         "folder": "py2",
         "install": "pip install --upgrade -r requirements.txt",
-        "run": "python3 main.py"
+        "run": "python3 main.py",
         "hook": "lint"
     }
 }
