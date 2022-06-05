@@ -45,8 +45,12 @@ def git_ignore_scan() -> list:
 # === GET TODOS === #
 def todos(folder: str):
     def getfiles(path: str) -> list:
-        files = []
-        for i in os.listdir(path):
+        files, dirTree = [], os.listdir(path)
+
+        for i in range(dirTree.count('node_modules')):
+            dirTree.remove('node_modules')
+
+        for i in dirTree:
             if os.path.isdir(os.path.join(path, i)):
                 files += getfiles(os.path.join(path, i))
             elif (b"ascii" in subprocess.run(["file", "--mime-encoding", os.path.join(path, i)],
@@ -68,6 +72,8 @@ def todos(folder: str):
 # === SHELL === #
 def shell(command: str) -> typing.Any:
     global PARENT_DIR, exit_, IGNORE, WORKFLOW
+
+    command = ' '.join(command.split())
 
     if command.strip() == "":
         return
@@ -129,8 +135,6 @@ def shell(command: str) -> typing.Any:
                     _ = "tmux new-window"
                 elif index == 0:
                     _ = "tmux new-session"
-                elif (index + 1) % 2 == 0:
-                    _ = "split-window"
                 elif index != 0:
                     _ = "new-window"
                 cmd += f"{_} \"{item}\" {bslash if index != len(cmds)-1 else '&& '}"
@@ -244,8 +248,6 @@ def shell(command: str) -> typing.Any:
                         _ = "tmux new-window"
                     elif index == 0:
                         _ = "tmux new-session"
-                    elif (index + 1) % 2 == 0:
-                        _ = "split-window"
                     elif index != 0:
                         _ = "new-window"
                     commands[keys[index]] = f"{_} \'cd {keys[index]} && {item} && sh -c read\'\\;"
@@ -325,9 +327,8 @@ if __name__ == "__main__":
         print(f'{GREEN}◆ {LIGHT_BLUE}{os.path.basename(os.getcwd())}{RESET}', end=" ")
 
         # ===Completer=== #
-        completer = Completer([files for root,dirs,files in os.walk(os.getcwd())][0]+[dirs for root,dirs,files in os.walk(os.getcwd())][0]) 
         readline.parse_and_bind('tab: complete')
-        readline.set_completer(completer.complete)
+        readline.set_completer(Completer(os.listdir()).complete)
 
         output = shell(input(f"{RED}❯{GREEN}❯{BLUE}❯{RESET} "))
         Cmd(stdin=output)
