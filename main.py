@@ -80,19 +80,19 @@ def shell(command: str) -> typing.Any:
 
     # === CHANGE DIRECTORY === #
     elif command.lower().startswith("cd"):
-        if len((x := command.strip().split())) == 1:
-            return "The path has not been supplied"
-        elif len(x) > 2:
-            return "Extra arguments passed"
-        elif not os.path.isdir(x[1]):
-            return "Cannot find the path specified"
+        if not os.path.isdir((x := command.split())[1]): return "Cannot find the path specified"
 
         # === TO CHECK IF THE PATH SPECIFIED GOES BEYOND PARENT_DIR === #
         if PARENT_DIR not in os.path.abspath(x[1]):
             print("Path specified goes beyond the parent directory")
             return
-
-        os.chdir(x[1])
+        
+        try: os.chdir(x[1])
+        except Exception as e: return e
+        
+        if '&&' not in x: return
+        for i in ' '.join(x).split('&&')[1:]:
+            os.system(i)
 
     # === GET TODOS === #
     elif command.lower().startswith("todos"):
