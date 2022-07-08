@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -10,7 +10,6 @@ if os.name == "nt":
 # === IMPORT MODULES === #
 import typing, argparse, readline, json, subprocess, traceback
 from cmd import Cmd
-
 
 # === COMPLETER === #
 class Completer(object):
@@ -80,19 +79,19 @@ def shell(command: str) -> typing.Any:
 
     # === CHANGE DIRECTORY === #
     elif command.lower().startswith("cd"):
-        if len((x := command.strip().split())) == 1:
-            return "The path has not been supplied"
-        elif len(x) > 2:
-            return "Extra arguments passed"
-        elif not os.path.isdir(x[1]):
-            return "Cannot find the path specified"
+        if not os.path.isdir((x := command.split())[1]): return "Cannot find the path specified"
 
         # === TO CHECK IF THE PATH SPECIFIED GOES BEYOND PARENT_DIR === #
         if PARENT_DIR not in os.path.abspath(x[1]):
             print("Path specified goes beyond the parent directory")
             return
-
-        os.chdir(x[1])
+        
+        try: os.chdir(x[1])
+        except Exception as e: return e
+        
+        if '&&' not in x: return
+        for i in ' '.join(x).split('&&')[1:]:
+            os.system(i)
 
     # === GET TODOS === #
     elif command.lower().startswith("todos"):
@@ -121,26 +120,34 @@ def shell(command: str) -> typing.Any:
             if command == "git add":
                 print("Nothing specified, nothing added.\nMaybe run 'git add .'?")
                 return
+            
             cmds, cmd, bslash, TERM = [], "", "\; ", os.environ["TERM"]
-            for i in WORKFLOW:
-                if "hooks" not in list(WORKFLOW[i].keys()): continue
-                cmds.append(
-                    f"cd {os.path.join(PARENT_DIR, WORKFLOW[i]['folder'])} && " 
-                    f"{' && '.join(WORKFLOW[i]['hooks']) if type(WORKFLOW[i]['hooks']) == list else WORKFLOW[i]['hooks']} && " 
-                    f"read "
-                )
+            if os.getcwd() != PARENT_DIR:
+                for i in WORKFLOW:
+                    if WORKFLOW[i]["folder"] != os.getcwd()[len(PARENT_DIR) + 1:].split('/')[0]: continue
+                    os.system(WORKFLOW[i]["hooks"])
+                    break
 
-            for index, item in enumerate(cmds):
-                if TERM == "screen" and index == 0:
-                    _ = "tmux new-window"
-                elif index == 0:
-                    _ = "tmux new-session"
-                elif index != 0:
-                    _ = "new-window"
-                cmd += f"{_} \"{item}\" {bslash if index != len(cmds)-1 else '&& '}"
-            cmd += command
+            else:
+                for i in WORKFLOW:
+                    if "hooks" not in list(WORKFLOW[i].keys()): continue
+                    cmds.append(
+                        f"cd {os.path.join(PARENT_DIR, WORKFLOW[i]['folder'])} && " 
+                        f"{' && '.join(WORKFLOW[i]['hooks']) if type(WORKFLOW[i]['hooks']) == list else WORKFLOW[i]['hooks']} && " 
+                        f"read "
+                    )
 
-            os.system(cmd)
+                for index, item in enumerate(cmds):
+                    if TERM == "screen" and index == 0:
+                        _ = "tmux new-window"
+                    elif index == 0:
+                        _ = "tmux new-session"
+                    elif index != 0:
+                        _ = "new-window"
+                    cmd += f"{_} \"{item}\" {bslash if index != len(cmds)-1 else '&& '}"
+                cmd += command
+
+                os.system(cmd)
 
         # === RUN THE GIT COMMAND SPECIFIED BY USER === #
         else:
